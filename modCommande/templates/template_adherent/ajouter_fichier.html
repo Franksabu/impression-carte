@@ -1,0 +1,176 @@
+{% load static %}
+{% block extra_js %}
+<script src="{% static 'js/sweetalert.min.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+      const fileInput = $("#fichier_excel");
+      const errorMessage = $("#fileErrorMessage");
+      const saveButton = $("#saveButton");
+      const uploadForm = $("#uploadExcelForm");
+      const Url = "/commandes/upload-excel-adherents/";
+
+      // Fonction pour valider le fichier sélectionné
+      function validateFile(file) {
+          if (!file) {
+              errorMessage.hide();
+              saveButton.prop("disabled", true);
+              return;
+          }
+
+          const validExtensions = [".xlsx", ".xls", ".pdf"];
+          const fileName = file.name.toLowerCase();
+          const isValid = validExtensions.some(ext => fileName.endsWith(ext));
+
+          if (isValid) {
+              errorMessage.hide();
+              saveButton.prop("disabled", false);
+          } else {
+              errorMessage.show().text("Format de fichier invalide. Formats acceptés : .xlsx, .xls, .pdf");
+              saveButton.prop("disabled", true);
+          }
+      }
+      
+      // Écouteur pour la sélection du fichier
+      fileInput.on("change", function () {
+          validateFile(this.files[0]);
+      });
+
+      // Écouteur pour l'envoi du formulaire
+      uploadForm.on("submit", async function (event) {
+          event.preventDefault(); // Empêche le rechargement de la page
+
+          const file = fileInput[0].files[0];
+          if (!file) {
+              swal("Erreur", "Veuillez sélectionner un fichier avant d'envoyer.", "warning");
+              return;
+          }
+
+          const formData = new FormData();
+          formData.append("fichier_excel", file);
+
+          // Ajout du token CSRF
+          const csrfToken = $("input[name='csrfmiddlewaretoken']").val();
+
+          // Désactiver le bouton et afficher un loader
+          saveButton.prop("disabled", true).text("Envoi en cours...");
+
+          try {
+              const response = await $.ajax({
+                  url: Url,
+                  type: "POST",
+                  data: formData,
+                  headers: {
+                      "X-CSRFToken": csrfToken
+                  },
+                  processData: false,
+                  contentType: false
+              });
+
+              // Vérification de la réponse
+              if (response.success) {
+                  swal("Succès", response.message || "Fichier envoyé avec succès !", "success").then(() => {
+                      if (response.redirect_url) {
+                          window.location.href = response.redirect_url;
+                      } else {
+                          location.reload();
+                      }
+                  });
+              } else {
+                  swal("Erreur", response.message || "Erreur lors de l'envoi", "error");
+              }
+          } catch (xhr) {
+              let messageErreur = "Une erreur inconnue s'est produite.";
+              let errorDetails = "";
+              
+              try {
+                  const response = JSON.parse(xhr.responseText);
+                  messageErreur = response.message || messageErreur;
+                  
+                  // Si des erreurs détaillées existent, les formater
+                  if (response.erreurs && Array.isArray(response.erreurs)) {
+                      if (response.erreurs.length > 10) {
+                          // Si trop d'erreurs, les grouper par type
+                          const errorTypes = {};
+                          response.erreurs.forEach(err => {
+                              const errorType = err.split("pour '")[0].trim();
+                              if (!errorTypes[errorType]) {
+                                  errorTypes[errorType] = 0;
+                              }
+                              errorTypes[errorType]++;
+                          });
+                          
+                          // Créer un résumé des erreurs
+                          errorDetails = Object.entries(errorTypes)
+                              .map(([type, count]) => `${type}: ${count} occurence(s)`)
+                              .join("<br>");
+                          
+                          // Ajouter les 5 premières erreurs comme exemples
+                          errorDetails += "<br><br>Exemples:<br>" + 
+                              response.erreurs.slice(0, 5).join("<br>");
+                      } else {
+                          // Si peu d'erreurs, toutes les afficher
+                          errorDetails = response.erreurs.join("<br>");
+                      }
+                  }
+              } catch (e) {
+                  messageErreur = "Impossible de lire la réponse du serveur.";
+              }
+              
+              // Vérifier quelle version de SweetAlert vous utilisez
+              if (typeof swal.mixin === 'function') {
+                  // SweetAlert2
+                  swal({
+                      title: "Erreur",
+                      html: `${messageErreur}<div style="max-height: 300px; overflow-y: auto; margin-top: 15px; text-align: left;">${errorDetails}</div>`,
+                      icon: "error"
+                  });
+              } else {
+                  // SweetAlert1 ou autre version
+                  swal({
+                      title: "Erreur",
+                      text: messageErreur,
+                      content: {
+                          element: "div",
+                          attributes: {
+                              innerHTML: `${messageErreur}<div class="text-dark" style="max-height: 300px; overflow-y: auto; margin-top: 15px; text-align: left;">${errorDetails}</div>`
+                          }
+                      },
+                      icon: "error"
+                  });
+              }
+          } finally {
+              saveButton.prop("disabled", false).text("Envoyer");
+          }
+      });
+  });
+</script>
+{% endblock %}
+
+<form method="post" enctype="multipart/form-data" id="uploadExcelForm" class="js-entity-upload-form">
+  {% csrf_token %}
+  
+  <div class="modal fade" id="fileUploadModal" tabindex="-1" aria-labelledby="fileUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="fileUploadModalLabel">Ajouter un fichier</h5>
+          <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="fichier_excel" class="form-label">Choisir un fichier</label>
+            <input class="form-control" type="file" id="fichier_excel" name="fichier_excel" required>
+            <div class="text-danger mt-2" id="fileErrorMessage" style="display:none;">
+              Format de fichier non valide. Veuillez sélectionner un fichier Excel ou PDF.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary" id="saveButton" disabled>Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,268 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Carte Adhérent</title>
+    <style>
+        @page {
+            size: 85.6mm 53.98mm;
+            margin: 0;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 85.6mm;
+            height: 53.98mm;
+            font-family: Tahoma, Arial, sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-container {
+            position: relative;
+            width: 85.6mm;
+            height: 53.98mm;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .content-overlay {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            
+
+        }
+        .header {
+            height: 12mm;
+            width: 100%;
+            position: relative;
+        }
+        .header-title {
+            position: absolute;
+            top: 3mm;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            font-size: 10px;
+            text-align: center;
+            font-style: italic;
+        }
+        .header-subtitle {
+            position: absolute;
+            top: 7mm;
+            right: 3mm;
+            font-size: 7px;
+            text-align: right;
+            font-weight: bold;
+            font-style: italic;
+        }
+        .client_nom1 {
+            position: absolute;
+            top: 13mm;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #336699; 
+        }
+        .client_nom2 {
+            position: absolute;
+            top: 13mm;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #537035;
+        }
+
+        .category {
+            position: absolute;
+            top: 17mm;
+            width: 100%;
+            text-align: center;
+            font-size: 8px;
+            font-weight: bold;
+            padding: 1mm 0;
+            font-style: italic;
+        }
+        .content {
+            position: absolute;
+            top: 21mm;
+            left: 3mm; /* Laisser de l'espace pour la photo */
+        }
+
+        table {
+            font-size: 7px;
+
+           
+
+        }
+
+        td {
+            padding-bottom: 5px;
+        }
+
+
+        .info-row {
+            display: flex;
+            font-size: 7px;
+            margin-bottom: 1.5mm;
+        }
+
+        .info-label {
+            font-weight: bold;
+        }
+
+        .info-value {
+            font-weight: normal;
+        }
+
+        .photo1 {
+            position: absolute;
+            top: 22mm;
+            left: 75%;
+            border: 1px solid #f7d308;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        .photo2 {
+            position: absolute;
+            top: 22mm;
+            left: 75%;
+            border: 1px solid #537035;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        .photo_image {
+            width: 16mm;
+            height: 20mm;
+            left: 75%;
+            display: flex;
+        }
+       
+        
+        .black_write{
+            color: #ffff; 
+        }
+
+
+        .member-name {                                                 
+            position: absolute;   
+            bottom: 8mm;
+            right: 3mm;
+            font-size: 7px;
+            font-weight: bold;
+            
+            
+            
+        }
+        .date_naissance {
+            position: absolute;
+            bottom: 3.5mm;
+            right: 6mm;
+            font-size: 7px;
+            font-weight: bold;
+        }
+        .preserve-lines { white-space: pre-wrap; }
+
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <img src="{{ bg_img }}" class="background-image" alt="Fond de carte">
+
+        <div class="content-overlay">
+            {% if infocarte.categorie == 2 %}
+                <div class="black_write">
+                    <div class="header">
+                        <div class="header-title">Assurance Maladie<br>SOCAR</div>
+                        <div class="header-subtitle">CARTE DE MEMBRE<br>MEMBERSHIP CARD</div>
+                    </div>
+                    
+                    <div class="category">
+                        {% if infocarte.categorie == 1 %}
+                        PREMIERE CATEGORIE / FIRST CATEGORY
+                        {% elif infocarte.categorie == 2 %}
+                        DEUXIEME CATEGORIE / SECOND CATEGORY
+                        {% else %}
+                        Autre categorie
+                        {% endif %}
+                        
+                    </div>
+                </div>
+            {% else %}
+                <div class="header">
+                    <div class="header-title">Assurance Maladie<br>SOCAR</div>
+                    <div class="header-subtitle">CARTE DE MEMBRE<br>MEMBERSHIP CARD</div>
+                </div>
+                
+                <div class="category">
+                    {% if infocarte.categorie == 1 %}
+                    PREMIERE CATEGORIE / FIRST CATEGORY
+                    {% elif infocarte.categorie == 2 %}
+                    DEUXIEME CATEGORIE / SECOND CATEGORY
+                    {% else %}
+                    Autre categorie
+                    {% endif %}
+                    
+                </div>
+            {% endif %}   
+            {% if infocarte.categorie == 1 %}
+               <div class="client_nom1">{{ infocarte.client_nom }}</div>
+               {% else %}
+            <div class="client_nom2">{{ infocarte.client_nom }}</div>
+            {% endif %}
+            <div class="content">
+            <table>
+                <tr style="margin-bottom: 2em;">
+                    <td class="info-label">Police N° :<br>Policy Nr</td>
+                    <td> {{ infocarte.numero_police }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="info-label">Carte N° :<br>Card Nr</td>
+                    <td> {{ infocarte.numero_carte }}</td>
+                </tr>
+                
+                <tr>
+                    <td class="info-label">Validité  :<br>Validity</td>
+                    <td> {{ infocarte.validite_debut|date:"d/m/Y" }} - {{ infocarte.validite_fin|date:"d/m/Y" }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">Ticket <br>Modérateur :</td>
+                    <td class="preserve-lines"> {{ infocarte.ticket_moderateur }}</td>
+                    
+                </tr>
+                
+                <tr>
+                    <td class="info-label">Patient <br>Contribution :</td>
+                    <td class="preserve-lines"> {{ infocarte.patient_contribution }}</td>
+                </tr>
+            </table>
+            </div>
+            {% if infocarte.categorie == 1 %}
+                <div class="photo1">
+                    <img src="{{ infocarte.photo_file.url }}"class='photo_image' alt="Photo">
+                </div>
+            {% else %}
+                <div class="photo2">
+                    <img src="{{ infocarte.photo_file.url }}"class='photo_image' alt="Photo ">
+                </div>
+            {% endif %}
+
+            <div class="member-name">{{ infocarte.nom }} {{ infocarte.prenom }}</div>
+            <div class="date_naissance">NÉ: {{ infocarte.date_naissance|date:"d/m/Y" }}</div>
+            
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Docker Login
+      run: |
+        echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+    - name: Build and Tag Docker Image
+      run: |
+        docker build . --file Dockerfile \
+          --tag ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:${GITHUB_SHA::8} \
+          --tag ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:latest
+
+    - name: List Docker Images
+      run: docker images
+
+    - name: Push Docker Images
+      run: |
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:${GITHUB_SHA::8}
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:latest
+
+  deploy:
+    needs: build
+    name: Deploy Image to Remote Server
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install SSH Keys
+      run: |
+        install -m 600 -D /dev/null ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+
+    - name: Connect and Pull New Image
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d"
+
+    - name: Cleanup SSH
+      run: rm -rf ~/.ssh
+  

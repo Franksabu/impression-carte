@@ -1,0 +1,137 @@
+{% load i18n static admin_coreui %}
+{% load static %}
+<style>
+.custom-ui {
+    font-size: 85px;
+}
+</style>
+  
+<div class="sidebar sidebar-dark sidebar-fixed border-end" id="sidebar">
+  <div class="sidebar-header border-bottom">
+    <div class="sidebar-brand pt-2 text-center">
+      <img class="center-image" style="width:82%" src="{% static 'assets/img/logo carte1.png' %}" alt="logo-socar">
+    </div>
+    <button class="btn-close d-lg-none" 
+            type="button" 
+            data-coreui-dismiss="offcanvas" 
+            data-coreui-theme="dark" 
+            aria-label="Close" 
+            onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
+    </button>
+  </div>
+  <ul class="sidebar-nav" data-coreui="navigation" data-simplebar="">
+    <li class="nav-item">
+      <a class="nav-link bg-info" href="{% if request.user.is_superuser %} {% url 'admin:index' %} {% else %} {% url 'index' %} {% endif %}">
+        <svg class="nav-icon" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <title>speedometer</title>
+          <path d="M19.955 6.67c-2.036-2.036-4.848-3.295-7.955-3.295-6.213 0-11.25 5.037-11.25 11.25 0 0 0 0 0 0v0 4.125h6.75v-1.5h-5.25v-2.625c0-5.376 4.374-9.75 9.75-9.75s9.75 4.374 9.75 9.75v2.625h-5.25v1.5h6.75v-4.125c0-0.009 0-0.020 0-0.031 0-3.097-1.26-5.9-3.295-7.924l-0-0z"></path>
+          <path d="M3.75 12.375h1.5v1.5h-1.5v-1.5z"></path>
+          <path d="M11.25 6h1.5v1.5h-1.5v-1.5z"></path>
+          <path d="M6.375 7.875h1.5v1.5h-1.5v-1.5z"></path>
+          <path d="M18.75 12.375h1.5v1.5h-1.5v-1.5z"></path>
+          <path d="M13.932 15.708l3.244-6.758-1.352-0.649-3.243 6.756c-0.177-0.037-0.379-0.058-0.587-0.058-1.66 0-3.007 1.346-3.007 3.007s1.346 3.007 3.007 3.007c1.66 0 3.007-1.346 3.007-3.007 0-0.92-0.413-1.743-1.063-2.294l-0.004-0.004zM12 19.5c-0.828 0-1.5-0.672-1.5-1.5s0.672-1.5 1.5-1.5c0.828 0 1.5 0.672 1.5 1.5v0c-0.001 0.828-0.672 1.499-1.5 1.5h-0z"></path>
+        </svg>
+        Tableau de bord 
+      </a>
+    </li>
+
+    {% admin_get_menu as app_list %}
+    {% if app_list %}
+      {% for app in app_list %}
+        {% if app.has_perms and not app.pinned %}
+          <li class="nav-group">
+            <a href="#" class="nav-link nav-group-toggle">
+              <svg  class="nav-icon" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <title>puzzle</title>
+                <path d="M23.048 12.033l-2.576-2.318 0.769-0.628c0.342-0.282 0.628-0.616 0.851-0.991l0.010-0.017c0.851-1.474 0.603-3.283-0.616-4.502s-3.029-1.467-4.502-0.616c-0.393 0.233-0.727 0.519-1.004 0.854l-0.005 0.006-0.628 0.769-2.346-2.605c-0.204-0.203-0.485-0.329-0.795-0.329s-0.592 0.126-0.796 0.329l-3.075 3.075 0.056 1.111 1.552 1.268c0.206 0.169 0.379 0.369 0.514 0.594l0.006 0.010c0.507 0.878 0.355 1.959-0.378 2.692s-1.814 0.884-2.692 0.378c-0.236-0.141-0.435-0.314-0.601-0.516l-0.003-0.004-1.268-1.552-1.111-0.056-3.34 3.34c-0.204 0.204-0.33 0.485-0.33 0.795s0.126 0.592 0.33 0.795l8.22 8.22c0.679 0.679 1.616 1.098 2.652 1.098s1.973-0.42 2.652-1.098l8.485-8.485c0.203-0.204 0.329-0.485 0.329-0.795s-0.126-0.592-0.329-0.795l0 0zM13.531 21.076c-0.407 0.407-0.97 0.659-1.591 0.659s-1.184-0.252-1.591-0.659l-7.955-7.955 2.489-2.489 0.75 0.918c0.282 0.342 0.616 0.628 0.991 0.851l0.017 0.010c1.474 0.851 3.283 0.603 4.502-0.616s1.467-3.029 0.616-4.502c-0.233-0.393-0.519-0.727-0.854-1.004l-0.006-0.005-0.918-0.75 2.209-2.209 2.626 2.918 1.138-0.027 1.175-1.438c0.169-0.206 0.369-0.378 0.594-0.514l0.010-0.006c0.878-0.507 1.959-0.355 2.692 0.378s0.884 1.814 0.378 2.692c-0.141 0.235-0.314 0.435-0.515 0.601l-0.004 0.003-1.438 1.175-0.027 1.138 2.918 2.626z"></path>
+              </svg>
+              {{ app.label|slice:15 }}{% if app.label|length > 15 %}..{% endif %}
+            </a>
+            {% if app.models %}
+              <ul class="nav-group-items compact">
+                {% for model in app.models %}
+                  {% if model.url %}
+                    <li class="nav-item">
+                      <a href="{{ model.url }}" class="nav-link">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ model.label }}
+                      </a>
+                    </li>
+                  {% else %}
+                    <li class="nav-item list-unstyled">{{ model.label }}</li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    {% if request.user.is_authenticated and not request.user.is_superuser %}
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'adherent_list' %}">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm6 1.5L18.5 10H13a1 1 0 0 1-1-1V3.5zM8 14h8v2H8v-2zm0 4h8v2H8v-2z"></path>
+        </svg>
+        liste Adherents
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">
+        <svg  class="nav-icon" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <title>puzzle</title>
+          <path d="M23.048 12.033l-2.576-2.318 0.769-0.628c0.342-0.282 0.628-0.616 0.851-0.991l0.010-0.017c0.851-1.474 0.603-3.283-0.616-4.502s-3.029-1.467-4.502-0.616c-0.393 0.233-0.727 0.519-1.004 0.854l-0.005 0.006-0.628 0.769-2.346-2.605c-0.204-0.203-0.485-0.329-0.795-0.329s-0.592 0.126-0.796 0.329l-3.075 3.075 0.056 1.111 1.552 1.268c0.206 0.169 0.379 0.369 0.514 0.594l0.006 0.010c0.507 0.878 0.355 1.959-0.378 2.692s-1.814 0.884-2.692 0.378c-0.236-0.141-0.435-0.314-0.601-0.516l-0.003-0.004-1.268-1.552-1.111-0.056-3.34 3.34c-0.204 0.204-0.33 0.485-0.33 0.795s0.126 0.592 0.33 0.795l8.22 8.22c0.679 0.679 1.616 1.098 2.652 1.098s1.973-0.42 2.652-1.098l8.485-8.485c0.203-0.204 0.329-0.485 0.329-0.795s-0.126-0.592-0.329-0.795l0 0zM13.531 21.076c-0.407 0.407-0.97 0.659-1.591 0.659s-1.184-0.252-1.591-0.659l-7.955-7.955 2.489-2.489 0.75 0.918c0.282 0.342 0.616 0.628 0.991 0.851l0.017 0.010c1.474 0.851 3.283 0.603 4.502-0.616s1.467-3.029 0.616-4.502c-0.233-0.393-0.519-0.727-0.854-1.004l-0.006-0.005-0.918-0.75 2.209-2.209 2.626 2.918 1.138-0.027 1.175-1.438c0.169-0.206 0.369-0.378 0.594-0.514l0.010-0.006c0.878-0.507 1.959-0.355 2.692 0.378s0.884 1.814 0.378 2.692c-0.141 0.235-0.314 0.435-0.515 0.601l-0.004 0.003-1.438 1.175-0.027 1.138 2.918 2.626z"></path>
+        </svg> 
+        liste des cartes imprimées
+      </a>
+    </li>
+      <!-- <li class="nav-group">
+        <a class="nav-link nav-group-toggle" href="#">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <title>shopping-cart</title>
+            <path d="M7 4h-2v-2h-5v2h3l3.6 7.59-1.35 2.44c-0.35 0.64-0.21 1.44 0.34 1.94 0.39 0.36 0.9 0.53 1.41 0.53h12v-2h-11.31c-0.09 0-0.18-0.04-0.24-0.11-0.05-0.05-0.08-0.12-0.06-0.19l0.03-0.05 1.1-2h7.45c0.75 0 1.41-0.41 1.75-1.03l3.58-6.49-1.73-1.01-3.58 6.49c-0.06 0.11-0.17 0.18-0.29 0.18h-7.5l-1.16-2zM7 22c1.1 0 2-0.9 2-2s-0.9-2-2-2-2 0.9-2 2 0.9 2 2 2zM17 22c1.1 0 2-0.9 2-2s-0.9-2-2-2-2 0.9-2 2 0.9 2 2 2z"></path>
+          </svg>
+          Commandes
+        </a>
+        <ul class="nav-group-items compact">
+          <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><span class="nav-icon-bullet"></span></span>commande</a></li>
+          <!-- <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><span class="nav-icon-bullet"></span></span>Detail des commandes</a></li> -->
+        </ul>
+      </li> 
+      <!-- <li class="nav-group">
+          <a class="nav-link nav-group-toggle" href="#">
+            <svg  class="nav-icon" version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <title>puzzle</title>
+              <path d="M23.048 12.033l-2.576-2.318 0.769-0.628c0.342-0.282 0.628-0.616 0.851-0.991l0.010-0.017c0.851-1.474 0.603-3.283-0.616-4.502s-3.029-1.467-4.502-0.616c-0.393 0.233-0.727 0.519-1.004 0.854l-0.005 0.006-0.628 0.769-2.346-2.605c-0.204-0.203-0.485-0.329-0.795-0.329s-0.592 0.126-0.796 0.329l-3.075 3.075 0.056 1.111 1.552 1.268c0.206 0.169 0.379 0.369 0.514 0.594l0.006 0.010c0.507 0.878 0.355 1.959-0.378 2.692s-1.814 0.884-2.692 0.378c-0.236-0.141-0.435-0.314-0.601-0.516l-0.003-0.004-1.268-1.552-1.111-0.056-3.34 3.34c-0.204 0.204-0.33 0.485-0.33 0.795s0.126 0.592 0.33 0.795l8.22 8.22c0.679 0.679 1.616 1.098 2.652 1.098s1.973-0.42 2.652-1.098l8.485-8.485c0.203-0.204 0.329-0.485 0.329-0.795s-0.126-0.592-0.329-0.795l0 0zM13.531 21.076c-0.407 0.407-0.97 0.659-1.591 0.659s-1.184-0.252-1.591-0.659l-7.955-7.955 2.489-2.489 0.75 0.918c0.282 0.342 0.616 0.628 0.991 0.851l0.017 0.010c1.474 0.851 3.283 0.603 4.502-0.616s1.467-3.029 0.616-4.502c-0.233-0.393-0.519-0.727-0.854-1.004l-0.006-0.005-0.918-0.75 2.209-2.209 2.626 2.918 1.138-0.027 1.175-1.438c0.169-0.206 0.369-0.378 0.594-0.514l0.010-0.006c0.878-0.507 1.959-0.355 2.692 0.378s0.884 1.814 0.378 2.692c-0.141 0.235-0.314 0.435-0.515 0.601l-0.004 0.003-1.438 1.175-0.027 1.138 2.918 2.626z"></path>
+            </svg> 
+          Impression
+        </a>
+        <ul class="nav-group-items compact">
+              <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><span class="nav-icon-bullet"></span></span>Carte imprimer</a></li>
+          <!-- <li class="nav-item"><a class="nav-link" href="#"><span class="nav-icon"><span class="nav-icon-bullet"></span></span>impression facture</a></li> -->
+        </ul>
+      </li> 
+      <!-- <li class="nav-item">
+        <a class="nav-link" href="#">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm6 1.5L18.5 10H13a1 1 0 0 1-1-1V3.5zM8 14h8v2H8v-2zm0 4h8v2H8v-2z"></path>
+          </svg>
+          contrat
+        </a>
+      </li> -->
+      
+    <!-- <li class="nav-item">
+      <a href="#" class="nav-link">
+          <i class="nav-icon"></i>
+          Rapports
+      </a>
+    </li> -->
+    
+    {% endif %}
+  </ul>
+  <div class="sidebar-footer border-top d-none d-md-flex">
+    <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
+  </div> 
+</div>
+
+

@@ -1,0 +1,38 @@
+# version: '3.8'
+
+services:
+  web:
+    build:    
+      context: .
+    image: frankdockersabu/impression-carte:latest  
+    volumes:
+      - static_volume:impression-carte/admin_coreui/staticfiles
+    env_file:
+      - .env 
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/impressiondb
+    networks:
+      - print_network 
+
+  nginx:
+    image: image: frankdockersabu/impression-carte:latest 
+    volumes:
+      - static_volume:/app/staticfiles  # Shared volume with web service
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf  # Configuration Nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - web
+    networks:
+      - print_network     
+
+volumes:
+  postgres_data:
+  static_volume:
+
+
+networks:
+  print_network:
+    driver: bridge

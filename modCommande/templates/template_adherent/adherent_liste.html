@@ -1,0 +1,275 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% block extra_js %}
+<script>
+  function openModal(url) {
+    $.ajax({
+        type: "GET",
+        url: url,
+        success: function (html) {
+            // Ajouter un ID de conteneur au modal qui sera retourné
+            $('#modal').html(html);
+            $('#modal').modal('show');
+            
+            // Initialiser les validations de formulaire si nécessaire
+            // initializeFormValidation();
+            
+            // Traitement AJAX du formulaire pour éviter le rechargement de page
+            setupFormSubmission();
+        },
+        error: function (xhr, status, error) {
+            console.error("Erreur lors du chargement du modal:", error);
+            swal("Erreur", "Impossible de charger le formulaire: " + error, "error");
+        }
+    });
+}
+// 4. Mise à jour de l'événement du bouton Nouveau
+$(document).ready(function() {
+    // Utiliser une délégation d'événements pour le bouton Nouveau
+    $(document).on('click', '.js-create-entity', function(e) {
+        e.preventDefault();
+        var url = $(this).data('url');
+        openModal(url);
+    });
+    
+    // Ajouter un div pour contenir le modal s'il n'existe pas déjà
+    if ($('#modal').length === 0) {
+        $('body').append('<div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>');
+    }
+});
+  
+  $(document).ready(function() {
+      // Fonction pour charger les données avec les critères de recherche
+      let adherentsData = [];
+      function loadData(page = 1) {
+        // Récupérer les valeurs des champs de filtrage pour l'API
+        const dateDebut = $('#date_debut').val();
+        const dateFin = $('#date_fin').val();
+        const numeroCarte = $('#numero_carte').val();
+        const nom = $('#nom').val();
+        // Construire l'objet de données avec les filtres pour l'API
+        const requestData = {
+            page: page,
+            date_debut: dateDebut,
+            date_fin: dateFin,
+            numero_carte: numeroCarte,
+            nom: nom
+        };
+          // Faire la requête AJAX
+        $.ajax({
+            url: '/commandes/infocarte/list/',
+            method: 'GET',
+            data: requestData,
+            success: function(data) {
+                const adherentsData = data.lst;
+                const pagination = data.num_pages;
+                const current_page = data.current_page;
+                
+                const tableBody = $('#tableinfo tbody');
+                tableBody.empty();  // Vider le tableau avant d'ajouter les nouvelles lignes
+
+                adherentsData.forEach(function(item, index) {
+                  const avatarSrc = item.photo_file || (
+                      item.genre == 1 ? '/static/assets/img/avatars/homme.jpg' : '/static/assets/img/avatars/femme.jpg'
+                  );
+
+                    const row = `
+                        <tr>
+                            <td class="text-center">${(current_page - 1) * adherentsData.length + index + 1}</td>
+                            <td class="text-center">
+                                <div class="avatar avatar-md" >
+                                    <img src="${avatarSrc}" alt="" class="avatar-img"> 
+                                </div>
+                            </td>
+                            <td class="text-center">${item.numero_police}</td>
+                            <td class="text-center">${item.numero_carte}</td>
+                            <td  >${item.nom_complet}</td>
+                            <td class="text-center">${item.client_nom}</td>
+                            <td class="text-center">${item.validite}</td>
+                            <td class="text-center">${item.statut_impression}</td>
+                            <td class="text-center">${item.impressions_count}</td>
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <button class="btn btn-transparent p-0" type="button" data-coreui-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                      <i class="icon cil-options"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                      <a href="/commandes/infocarte/pdf/${item.id}/" class="dropdown-item btn btn-primary btn-sm js-print-card" title="Réimprimer la carte">
+                                        <i class="icon cil-print"></i> imprimer
+                                      </a>
+                                      <a href="#" class="dropdown-item btn btn-primary btn-sm js-print-card" title="Réimprimer la carte">
+                                        <i class="icon cil-print"></i> Réimprimer
+                                      </a>
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(row);
+                });
+
+                // Mettre à jour la pagination
+                const paginationContainer = $('#pagination');
+                paginationContainer.empty();
+                
+                if (pagination > 1) {  // Afficher la pagination seulement si plusieurs pages existent
+                    for (let i = 1; i <= pagination; i++) {
+                        const pageLink = `<li class="page-item ${i === current_page ? 'active' : ''}">
+                            <a class="page-link" href="javascript:void(0)" data-page="${i}">${i}</a>
+                        </li>`;
+                        paginationContainer.append(pageLink);
+                    }
+                }
+                // Réattache les événements de pagination après génération
+                $('#pagination a.page-link').click(function() {
+                    const selectedPage = $(this).data('page');
+                    loadData(selectedPage);
+                });
+            },
+            error: function(error) {
+                console.error('Erreur lors du chargement des données', error);
+            }
+        });
+      }
+      // Événements pour le filtrage en temps réel
+      $('#date_debut, #date_fin, #numero_carte, #nom').on('keyup change', function() {
+        // Variable pour stocker le timer de délai
+        let searchTimer;
+
+        // Effacer le timer précédent pour éviter des requêtes multiples
+        clearTimeout(searchTimer);
+
+        // Pour les filtres qui nécessitent un rechargement complet depuis le serveur
+        if ($(this).attr('id') === 'date_debut' ||
+            $(this).attr('id') === 'date_fin' ||
+            $(this).attr('id') === 'nom' ||
+            $(this).attr('id') === 'numero_carte' 
+        ) {
+            searchTimer = setTimeout(() => {
+              loadData(1);
+              (1);
+            }, 200); // 300ms de délai
+        } 
+      });
+      
+      $('#btn_new').on('click', function () {
+        var url = $(this).data('url');
+        openModal(url);
+      });
+      // Charger les données au chargement de la page
+      loadData();
+  });
+</script>
+{% endblock extra_js %}
+
+{% block content %}
+<div class="wrapper d-flex flex-column min-vh-100">
+  <header class="header header-sticky p-0 mb-4">
+    {% include 'includes/navbar.html' %}
+    <div class="container-fluid px-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-0">
+          <li class="breadcrumb-item"><a href="/">Accueil</a>
+          </li>
+          <li class="breadcrumb-item"><span>Adherents</span>
+          </li>
+          <li class="breadcrumb-item active"><span>List</span>
+          </li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+  <div class="body flex-grow-1">
+    <div class="container-fluid px-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="card-header">
+              <i class="icon cil-group"></i>
+              <strong>Liste entreprise adherent</strong>
+              <button class="btn btn-sm btn-primary js-create-entity"
+                      type="button" style="float:right"
+                      title="Ajouter un adherent"
+                      data-url="{% url 'creer_infocarte' %}">
+                      <i class="icon cil-plus"></i>Nouveau
+              </button>
+            </div>
+              <div class="card-body">
+              <div class="row mb-4">
+                <div class="col-md-12 col-sm-12 col-lg-12">
+                <!-- CHAMP DE FILTRAGE -->
+                  <div class="row">
+                    <div class="col-sm-4 col-md-4 col-lg-2">
+                      <label class="form-label" for="date_debut">Du</label>
+                      <input class="form-control" name="date_debut" id="date_debut" type="date" >
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-2">
+                      <label class="form-label" for="date_fin">Au</label>
+                      <input class="form-control" name="date_fin" id="date_fin" type="date" >
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-2">
+                      <label class="form-label" for="numero_carte">Numero carte</label>
+                      <input class="form-control" name="Numero carte" id="numero_carte" type="text" placeholder="numero de la carte ...">
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-2">
+                      <label class="form-label" for="nom">Nom </label>
+                      <input class="form-control" name="nom" id="nom" type="text" placeholder="nom adherent ...">
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-2 " style="margin-top:2em;">
+                      <button class="btn btn-success" id="print-list" type="button" title="Imprimer la liste">
+                        <i class="icon cil-print"></i>
+                      </button>
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-2 " style="margin-top:2em;"> 
+                      <button type="button" class="btn btn-sm btn-primary"
+                            data-coreui-toggle="modal" data-coreui-target="#fileUploadModal"
+                            style="float:right" title="Ajouter un fichier">
+                            <i class="icon cil-cloud-download"></i> Ajouter un fichier 
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+               <div class="row">
+                  <!-- TABLE HEADER -->
+                  <table id='tableinfo' class="table table-bordered table-striped table-hover">
+                    <thead class="table-dark fw-semibold">
+                      <tr class="align-middle">
+                        <th scope="col" class="text-center" style="width: 4%;">No</th>
+                        <th scope="col" class="text-center">Avatar</th>
+                        <th scope="col" class="text-center">Numero police</th>
+                        <th scope="col" class="text-center" width="17%">Numero carte</th>
+                        <th scope="col" class="text-center" width="15%">Nom&Prenom</th>
+                        <th scope="col" class="text-center">Client</th>
+                        <th scope="col" class="text-center">Validite</th>
+                        <th scope="col" class="text-center" width="15%">Status impression</th>
+                        <th scope="col" class="text-center" width="15%">Nombre impression</th>
+                        <th scope="col" class="text-center" style="width: 5%;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    
+                    </tbody>
+                  </table>
+                  <div class="row">
+                    <div class="col-12">
+                      <nav aria-label="Page navigation example">
+                        <ul class="pagination" id="pagination">
+                          <!-- LES BOUTONS DE PAGINATION SERONT AJOUTÉS ICI DYNAMIQUEMENT -->
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include "includes/footer.html" %}
+  <!-- Inclusion du modal -->
+  {% include 'template_adherent/ajouter_fichier.html' %}
+</div>
+{% endblock content %}

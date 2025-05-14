@@ -1,0 +1,55 @@
+{% block extra_js %}
+<script>
+  $(".js-entity-create-form").on("submit", function (e) {
+    e.preventDefault();
+    const form = $(this);
+    const formData = new FormData(this);
+
+    $.ajax({
+      url: form.attr("action"),
+      type: form.attr("method"),
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (data) {
+        if (data.form_is_valid) {
+          window.location.href = data.url_redirect;
+        } else {
+          $("#modal-entity .modal-content").html(data.html_form);
+        }
+      }
+    });
+  });
+
+</script>
+{% endblock extra_js %}
+
+<form method="post" action="{% url 'creer_infocarte' %}" class="js-entity-create-form" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header text-light bg-dark">
+        <h5 class="modal-title"><strong>Création d'une carte</strong></h5>
+        <button type="button" class="btn-close btn-close-white" data-coreui-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            <ul>
+              {% for field in form %}
+                {% for error in field.errors %}
+                  <li><strong>{{ field.label }} :</strong> {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        {% include 'template_adherent/form.html' %}
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">Fermer</button>
+        <button class="btn btn-primary" type="submit">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</form>
