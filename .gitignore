@@ -1,0 +1,48 @@
+# byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# tests and coverage
+*.pytest_cache
+.coverage
+
+core/settings.py
+*migrations/
+
+# database & logs
+*.db
+*.sqlite3
+*.log
+
+# venv
+*.env
+.env
+*env
+*venv
+
+# logs activity
+*access-logs.text
+
+# media
+*mnt/
+*media/
+
+# other
+.DS_Store
+
+# javascript
+package-lock.json
+
+staticfiles/*
+static/*
+!staticfiles/.gitkeep 
+.vscode/symbols.json
+
+apps/static/assets/node_modules
+apps/static/assets/yarn.lock
+apps/static/assets/.temp
+
+# settings
+local_settings.py
+node_modules
+node_modules

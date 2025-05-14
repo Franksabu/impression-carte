@@ -1,0 +1,65 @@
+
+{% extends 'layouts/base-fullscreen.html' %}
+{% load static %}
+
+{% block content %}
+  
+<div class="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-4">
+        <div class="card-group d-block d-md-flex row">
+          <div class="card col-md-6 p-4 mb-0">
+            <div class="card-body">
+              <div class="text-center">
+                <img class="center-image" style="width:90%" src="{% static 'assets/img/logo carte.png' %}" alt="logo-socar">
+              </div>
+              <h2 class="text-center"><strong>AUTHENTIFICATION</strong></h2>
+              <p class="text-body-secondary ">Connectez-vous sur ton compte</p>
+              <form action="" method="post">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                  {% for error in form.non_field_errors %}
+                    <div class="text-danger mb-3">{{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+
+
+                <div class="input-group mb-3">
+                  <span class="input-group-text"><i class="icon cil-user"></i></span>
+                  {{ form.username }}
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text"><i class="icon cil-lock-locked"></i></span>
+                  {{ form.password }}
+                </div>
+
+                <div class="row mb-4">
+                  <div class="col-6">
+                    <button class="btn btn-primary px-4" type="submit">Connexion</button>
+                  </div>
+                  <div class="col-6 text-end">
+                    <a href="{% url 'password_reset' %}" class="btn btn-link px-0">Mot de pass oublie ?</a>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-12 text-center text-primary">
+                    <h1><strong>SGIC</strong></h1>
+                  </div>
+                  <div class="col-12 text-center text-primary">
+                    <p>
+                      Systeme de Gestion d'impression des cartes 
+                    </p>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+  
+ 

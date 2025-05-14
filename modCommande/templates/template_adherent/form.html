@@ -1,0 +1,93 @@
+{% load widget_tweaks %}
+
+<!-- Affichage des erreurs de formulaire -->
+{% if form.errors %}
+  <div class="alert alert-danger">
+    <ul>
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li><strong>{{ field.label }} :</strong> {{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<div class="container">
+  <div class="row mb-3">
+    <div class="form-group col-sm-3">
+      <i class="text-danger">*</i>
+      {{ form.numero_police.label_tag }}
+      {% render_field form.numero_police class="form-control"  %}
+    </div>
+    <div class="form-group col-sm-3">
+      <i class="text-danger">*</i>
+      {{ form.numero_carte.label_tag }}
+      {% render_field form.numero_carte class="form-control"  %}
+    </div>
+    <div class="form-group col-sm-3">
+      <i class="text-danger">*</i>
+      {{ form.nom.label_tag }}
+      {% render_field form.nom class="form-control"  %}
+    </div>
+    <div class="form-group col-sm-3">
+      <i class="text-danger">*</i>
+      {{ form.prenom.label_tag }}
+      {% render_field form.prenom class="form-control"  %}
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="form-group col-sm-4">
+      <i class="text-danger">*</i>
+      {{ form.genre.label_tag }}
+      {% render_field form.genre class="form-control"  %}
+    </div>
+    <div class="form-group col-sm-4">
+      <i class="text-danger">*</i>
+      {{ form.membre.label_tag }}
+      {% render_field form.membre class="form-control"  %}
+    </div>
+    <div class="form-group col-sm-4">
+      <i class="text-danger">*</i>
+      {{ form.date_naissance.label_tag }}
+      {% render_field form.date_naissance class="form-control" %}
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="form-group col-sm-4">
+      <i class="text-danger">*</i>
+      {{ form.categorie.label_tag }}
+      {% render_field form.categorie class="form-control"  %}
+    </div>
+    <div class="form-group col-sm-4">
+      {{ form.validite_debut.label_tag }}
+      {% render_field form.validite_debut class="form-control"  %}
+    </div>
+    <div class="form-group col-sm-4">
+      {{ form.validite_fin.label_tag }}
+      {% render_field form.validite_fin class="form-control"  %}
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="form-group col-sm-6">
+      {{ form.ticket_moderateur.label_tag }}
+      {% render_field form.ticket_moderateur class="form-control"  %}
+    </div>
+    <div class="form-group col-sm-6">
+      {{ form.patient_contribution.label_tag }}
+      {% render_field form.patient_contribution class="form-control"  %}
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="form-group col-sm-6">
+      {{ form.photo_file.label_tag }}
+      {% render_field form.photo_file class="form-control"  %}
+    </div>
+  </div>
+</div>
+
+

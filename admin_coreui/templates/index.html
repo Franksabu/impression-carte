@@ -1,0 +1,273 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/@coreui/icons@3.0.1/dist/cjs/index.min.js"></script>
+<script>
+  // Variables globales pour la pagination
+let currentPage = 1;
+let totalPages = 1;
+
+// Récupère et met à jour les informations du tableau de bord
+function fetchDashboardInfo() {
+    $.ajax({
+        url: '/commandes/dashboard/',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            // Mise à jour des compteurs du tableau de bord
+            $('#total_commandes').text(data.total_commandes);
+            $('#total_detailcommandes').text(data.total_detailcommandes);
+            $('#total_cartes_imprimees').text(data.total_cartes_imprimees);
+            
+            // Mise à jour du cercle de progression
+            const progressPercentage = (data.total_cartes_imprimees / data.total_detailcommandes) * 360;
+            $('#progress_cartes_imprimees').css('--progress', `${progressPercentage}deg`);
+        },
+        error: function(xhr, status, error) {
+            console.error('Erreur de récupération du tableau de bord:', error);
+        }
+    });
+}
+
+// Charge la liste des commandes avec pagination
+function loadListeCommande(page) {
+    // Affiche l'indicateur de chargement
+    $('#preview-1206').show();
+    
+    $.ajax({
+        url: '/commandes/data/commande/',
+        type: 'GET',
+        data: { page: page },
+        success: function(data) {
+            // Vide le corps du tableau
+            $('#tablecommande tbody').empty();
+            
+            totalPages = data.num_pages;
+            currentPage = page;
+            
+            // Calcul du numéro de ligne de départ
+            const rowNum = (page - 1) * 15;
+            // Filtrer les commandes avec status différent de "Clôturée"
+            let commandesNonCloturees = data.commandes.filter(cmd => cmd.status !== "Clôturée");
+            // Parcours des commandes et ajout au tableau
+            $.each(commandesNonCloturees, function(index, liste) {
+                const detailLink = "#".replace('0', liste.id);
+                
+                const row = `
+                    <tr>
+                        <td>${rowNum + index + 1}</td>
+                        <td>${liste.reference}</td>
+                        <td>${liste.designation}</td>
+                        <td>${liste.created_at}</td>
+                        <td>${liste.status}</td>
+                        <td class="text-center">
+                            <div class="dropdown">
+                                <button class="btn btn-transparent p-0" type="button" 
+                                        data-coreui-toggle="dropdown" 
+                                        aria-haspopup="true" 
+                                        aria-expanded="false">
+                                    <i class="icon cil-options"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item" href="${detailLink}">
+                                        <i class="icon cil-folder-open"></i> Voir détail
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+                
+                $('#tablecommande tbody').append(row);
+            });
+            
+            // Mise à jour des contrôles de pagination
+            updatePagination();
+        },
+        error: function(error) {
+            console.error('Erreur de chargement des commandes:', error);
+        },
+        complete: function() {
+            // Cache l'indicateur de chargement
+            $('#preview-1206').hide();
+        }
+    });
+}
+
+
+
+// Initialisation au chargement du document
+$(document).ready(function() {
+    // Charge les données initiales du tableau de bord
+    fetchDashboardInfo();
+    
+    // Charge la première page des commandes
+    loadListeCommande(1);
+    
+    // Configure un intervalle de rafraîchissement pour les données du tableau de bord (toutes les 5 minutes)
+    setInterval(fetchDashboardInfo, 300000);
+});
+  
+</script>
+{% endblock extra_js %}
+{% block extra_css %}
+<style>
+    .progress_div {
+      display: flex;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: conic-gradient(#272678 var(--progress), #7675C3 0deg);
+      font-size: 0;
+    }
+
+    .progress_1 {
+      background: conic-gradient(#272678 var(--progress), #7675C3 0deg);
+    }
+
+    .progress_2 {
+      background: conic-gradient(#16528F var(--progress), #6D9BCA 0deg);
+    }
+    .progress_div::after {
+      content: attr(data-progress) '%';
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      width: 100%;
+      margin: 13px;
+      border-radius: 50%;
+      background: #5856d6;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .progress_1::after {
+      background: #5856d6;
+    }
+
+    .progress_2::after {
+      background: #3399ff;
+    }
+
+</style>
+{% endblock extra_css %}
+
+
+{% block content %}
+ 
+<div class="wrapper d-flex flex-column min-vh-100">
+  <header class="header header-sticky p-0 mb-4">
+   {% include 'includes/navbar.html' %}
+    <div class="container-fluid px-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-0">
+          <li class="breadcrumb-item"><a href="#">Home</a>
+          </li>
+          <li class="breadcrumb-item active"><span>Dashboard</span>
+          </li>
+        </ol>
+      </nav>
+    </div>
+  </header>
+  <div class="body flex-grow-1">
+    <div class="container-lg px-4">
+      {% include 'includes/topbar.html' %}
+      <div class="row g-4 mb-4">
+               <!-- commande -->
+               <div class="col-sm-6 col-xl-6">
+                <div class="card text-white bg-primary">
+                    <div class="card-body pb-3 d-flex justify-content-between align-items-start">
+                        <div class="row">
+                            <div class="col-sm-12 fs-4 fw-semibold">
+                                <i class="icon icon-xl cil-cash"></i> Nombre commande
+                            </div>
+                            <div class="col-sm-7 pt-3">
+                                <strong class="fs-5" id="total_commandes">0</strong> commandes <br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+            <!-- /.col-->
+
+            <!-- carte imprimer -->
+        <div class="col-sm-6 col-xl-6">
+          <div class="card text-white bg-info">
+              <div class="card-body pb-3 d-flex justify-content-between align-items-start">
+                  <div class="row">
+                      <div class="col-sm-12 fs-4 fw-semibold">
+                          <i class="icon icon-xl cil-hospital"></i> Nombre carte imprimée
+                      </div>
+                      <div class="col-sm-7 pt-3">
+                          <strong class="fs-5" id="total_cartes_imprimees">0</strong> cartes <br>
+                              dans <span id="total_detailcommandes">0</span> commandes 
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+        
+      </div>
+      <!-- /.row-->
+      <div class="card mb-2">
+        <h4 class="card-header">Liste des commandes non terminer</h4>
+        <div class="card-body">
+            <table id='tablecommande'class="table table-bordered table-striped table-hover">
+              <thead class="table-dark fw-semibold">
+                <tr class="align-middle">
+                  <th scope="col">No</th>
+                  <th scope="col">Reference</th>
+                  <th scope="col">Designation</th>
+                  <th scope="col">date de commande</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+              </tbody>
+            </table>
+        </div>
+      </div>
+       <!-- /.row-->
+       <div class="card mb-4" id="card-chart4">
+        <div class="card-body" id="card-chart3">
+          <div class="d-flex justify-content-between" id="card-chart2">
+            <div>
+              <h4 class="card-title mb-0">Graphique de frequence d'impression de carte par mois </h4>
+              <div class="small text-body-secondary">January - July 2023</div>
+            </div>
+            <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
+              <div class="btn-group btn-group-toggle mx-3" data-coreui-toggle="buttons">
+                <input class="btn-check" id="option1" type="radio" name="options" autocomplete="off">
+                <label class="btn btn-outline-secondary"> Day</label>
+                <input class="btn-check" id="option2" type="radio" name="options" autocomplete="off" checked="">
+                <label class="btn btn-outline-secondary active"> Month</label>
+                <input class="btn-check" id="option3" type="radio" name="options" autocomplete="off">
+                <label class="btn btn-outline-secondary"> Year</label>
+              </div>
+              <button class="btn btn-primary" type="button">
+                <svg class="icon">
+                 <use xlink:href="static/assets/node_modules/@coreui/icons/sprites/free.svg#cil-cloud-download"></use>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="c-chart-wrapper" style="height:300px;margin-top:40px;">
+            <canvas class="chart" id="main-chart" height="300"></canvas>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 row-cols-xl-5 g-4 mb-2 text-center">
+          </div>
+        </div>
+      </div>
+      <!-- /.row-->
+    </div>
+  </div>
+  {% include "includes/footer.html" %}
+</div>
+{% endblock content %}
+ 
+
+  
+
