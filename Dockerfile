@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /impression-carte-master
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y gcc musl-dev
+RUN apk update && apk add --no-cache gcc musl-dev
 
 # Upgrade pip
 RUN pip install --upgrade pip
