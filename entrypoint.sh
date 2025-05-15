@@ -1,12 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
-# Apply migrations
-python manage.py migrate --no-input
-# Collect static files
-python manage.py collectstatic --no-input
+echo "📦 Migration de la base de données..."
+python manage.py migrate
 
-# Start Nginx
-# service nginx start
+echo "🧹 Collecte des fichiers statiques..."
+python manage.py collectstatic --noinput
 
-# Start Gunicorn
-gunicorn impression-carte-master/PrintCard.wsgi:application --bind 0.0.0.0:8001
+echo "🚀 Lancement de l'application"
+
+gunicorn PrintCard.wsgi:application --bind 0.0.0.0:8001

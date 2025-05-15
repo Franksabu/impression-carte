@@ -4,9 +4,10 @@ services:
   web:
     build:    
       context: .
-    image: frankdockersabu/impression-carte:latest  
+      dockerfile: Dockerfile
+    image: frankdockersabu/impression-carte:web  
     volumes:
-      - static_volume:impression-carte/admin_coreui/staticfiles
+      - static_volume:/impression-carte/admin_coreui/staticfiles
     env_file:
       - .env 
     ports:
@@ -17,9 +18,9 @@ services:
       - print_network 
 
   nginx:
-    image: image: frankdockersabu/impression-carte:latest 
+    image: frankdockersabu/impression-carte:nginx 
     volumes:
-      - static_volume:/app/staticfiles  # Shared volume with web service
+      - static_volume:/impression-carte/admin_coreui/staticfiles  # Shared volume with web service
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf  # Configuration Nginx
     ports:
       - "8080:80"
@@ -28,8 +29,7 @@ services:
     networks:
       - print_network     
 
-volumes:
-  postgres_data:
+volumes:  
   static_volume:
 
 
