@@ -27,15 +27,16 @@ jobs:
         run: |
           docker build . --file Dockerfile \
             --tag ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:${GITHUB_SHA::8} \
-            --tag ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:latest
-
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:web
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:nginx
       - name: List Docker Images
         run: docker images
 
       - name: Push Docker Images
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:${GITHUB_SHA::8}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:web
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:nginx
 
   deploy:
     needs: build
