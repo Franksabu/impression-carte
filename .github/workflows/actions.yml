@@ -64,10 +64,3 @@ jobs:
 
       - name: Cleanup SSH Keys
         run: rm -rf ~/.ssh
-
-    - name: Connect and Pull New Image
-      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d"
-
-    - name: Cleanup SSH
-      run: rm -rf ~/.ssh
-  
