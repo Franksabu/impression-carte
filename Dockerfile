@@ -1,4 +1,4 @@
-FROM python:3.13-alpine
+FROM python:3.12-alpine
 
 # Désactiver la mise en mémoire tampon pour une sortie immédiate
 ENV PYTHONUNBUFFERED=1
@@ -6,8 +6,14 @@ ENV PYTHONUNBUFFERED=1
 # Créer un répertoire de travail
 WORKDIR /impression-carte-master
 
-# Install system dependencies
-RUN apk update && apk add --no-cache gcc musl-dev
+# Installer les dépendances système nécessaires (ajuste selon ton projet)
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    postgresql-dev \
+    python3-dev \
+    build-base
 
 # Upgrade pip
 RUN pip install --upgrade pip
@@ -24,7 +30,7 @@ COPY . .
 # COPY nginx/default.conf /etc/nginx/conf.d/
 
 # Ajout d'un script d'entrypoint sécurisé
-# COPY entrypoint.sh /entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
  
 ENTRYPOINT ["sh", "/entrypoint.sh"]  
