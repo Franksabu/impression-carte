@@ -6,37 +6,32 @@ ENV PYTHONUNBUFFERED=1
 # Créer un répertoire de travail
 WORKDIR /impression-carte-master
 
-# Installer les dépendances système nécessaires (ajuste selon ton projet)
+# Installer les dépendances système nécessaires
 RUN apk add --no-cache \
     gcc \
     musl-dev \
     libffi-dev \
     postgresql-dev \
     python3-dev \
-    build-base
+    build-base \
+    py3-setuptools \
+    py3-wheel \
+    py3-pip
 
-# Upgrade pip
-RUN pip install --upgrade pip
+# Assure-toi que pip, setuptools, et wheel sont bien à jour
+RUN pip install --upgrade pip setuptools wheel
 
-# Installation des dépendances Python (avec cache désactivé)
+# Copie des dépendances Python
 COPY requirements.txt .
 
-# Installer pip + outils de build nécessaires
-RUN pip install --upgrade pip setuptools wheel
-# Installer les dépendances Python
-# Utiliser --no-cache-dir pour éviter de stocker le cache
-# et réduire la taille de l'image
+# Installation des dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copie de l'application dans le répertoire de travail
+# Copie de l’application
 COPY . .
 
-# # Configuration de Nginx
-# RUN rm -f /etc/nginx/sites-enabled/default
-# COPY nginx/default.conf /etc/nginx/conf.d/
-
-# Ajout d'un script d'entrypoint sécurisé
+# Ajout d'un script d’entrypoint sécurisé
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
- 
-ENTRYPOINT ["sh", "/entrypoint.sh"]  
+
+ENTRYPOINT ["sh", "/entrypoint.sh"]
