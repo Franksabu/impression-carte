@@ -38,30 +38,30 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:web
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:nginx
 
-  deploy:
-    needs: build
-    name: Deploy Image to Remote Server
-    runs-on: ubuntu-latest
+  # deploy:
+  #   needs: build
+  #   name: Deploy Image to Remote Server
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Install SSH Keys
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+  #   steps:
+  #     - name: Install SSH Keys
+  #       run: |
+  #         mkdir -p ~/.ssh
+  #         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+  #         chmod 600 ~/.ssh/id_rsa
+  #         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
 
-      - name: Deploy Application
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          WORK_DIR: ${{ secrets.WORK_DIR }}
-        run: |
-          ssh $SSH_USER@$SSH_HOST << EOF
-            cd $WORK_DIR
-            docker compose pull
-            docker compose up -d
-          EOF
+  #     - name: Deploy Application
+  #       env:
+  #         SSH_USER: ${{ secrets.SSH_USER }}
+  #         SSH_HOST: ${{ secrets.SSH_HOST }}
+  #         WORK_DIR: ${{ secrets.WORK_DIR }}
+  #       run: |
+  #         ssh $SSH_USER@$SSH_HOST << EOF
+  #           cd $WORK_DIR
+  #           docker compose pull
+  #           docker compose up -d
+  #         EOF
 
-      - name: Cleanup SSH Keys
-        run: rm -rf ~/.ssh
+  #     - name: Cleanup SSH Keys
+  #       run: rm -rf ~/.ssh
