@@ -20,6 +20,12 @@ RUN pip install --upgrade pip
 
 # Installation des dépendances Python (avec cache désactivé)
 COPY requirements.txt .
+
+# Installer pip + outils de build nécessaires
+RUN pip install --upgrade pip setuptools wheel
+# Installer les dépendances Python
+# Utiliser --no-cache-dir pour éviter de stocker le cache
+# et réduire la taille de l'image
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copie de l'application dans le répertoire de travail
