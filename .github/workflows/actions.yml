@@ -24,44 +24,23 @@ jobs:
           echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
 
       - name: Build and Tag Docker Image
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-8)
           docker build . --file Dockerfile \
-            --tag ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:${GITHUB_SHA::8} \
-            --tag ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:web \
-            --tag ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:nginx
+            --tag $DOCKERHUB_USERNAME/impression-carte:$SHORT_SHA \
+            --tag $DOCKERHUB_USERNAME/impression-carte:web \
+            --tag $DOCKERHUB_USERNAME/impression-carte:nginx
+
       - name: List Docker Images
         run: docker images
 
       - name: Push Docker Images
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:${GITHUB_SHA::8}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:web
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/impression-carte:nginx
-
-  # deploy:
-  #   needs: build
-  #   name: Deploy Image to Remote Server
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Install SSH Keys
-  #       run: |
-  #         mkdir -p ~/.ssh
-  #         echo "{{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-  #         chmod 600 ~/.ssh/id_rsa
-  #         ssh-keyscan -H {{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
-
-  #     - name: Deploy Application
-  #       env:
-  #         SSH_USER: { secrets.SSH_USER }}
-  #         SSH_HOST: {{ secrets.SSH_HOST }}
-  #         WORK_DIR: {{ secrets.WORK_DIR }}
-  #       run: |
-  #         ssh $SSH_USER@$SSH_HOST << EOF
-  #           cd $WORK_DIR
-  #           docker compose pull
-  #           docker compose up -d
-  #         EOF
-
-  #     - name: Cleanup SSH Keys
-  #       run: rm -rf ~/.ssh
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-8)
+          docker push $DOCKERHUB_USERNAME/impression-carte:$SHORT_SHA
+          docker push $DOCKERHUB_USERNAME/impression-carte:web
+          docker push $DOCKERHUB_USERNAME/impression-carte:nginx
