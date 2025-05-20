@@ -1,46 +1,46 @@
-name: Docker Image CI
+# name: Docker Image CI
 
-on:
-  push:
-    branches:
-      - "main"
-  pull_request:
-    branches:
-      - "main"
+# on:
+#   push:
+#     branches:
+#       - "main"
+#   pull_request:
+#     branches:
+#       - "main"
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
 
-      - name: Log in to DockerHub
-        env:
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        run: |
-          echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+#       - name: Log in to DockerHub
+#         env:
+#           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+#           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+#         run: |
+#           echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-      - name: Build and Tag Docker Image
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        run: |
-          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-8)
-          docker build . --file Dockerfile \
-            --tag $DOCKERHUB_USERNAME/impression-carte:$SHORT_SHA \
-            --tag $DOCKERHUB_USERNAME/impression-carte:web \
-            --tag $DOCKERHUB_USERNAME/impression-carte:nginx
+#       - name: Build and Tag Docker Image
+#         env:
+#           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+#         run: |
+#           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-8)
+#           docker build . --file Dockerfile \
+#             --tag $DOCKERHUB_USERNAME/impression-carte:$SHORT_SHA \
+#             --tag $DOCKERHUB_USERNAME/impression-carte:web \
+#             --tag $DOCKERHUB_USERNAME/impression-carte:nginx
 
-      - name: List Docker Images
-        run: docker images
+#       - name: List Docker Images
+#         run: docker images
 
-      - name: Push Docker Images
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        run: |
-          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-8)
-          docker push $DOCKERHUB_USERNAME/impression-carte:$SHORT_SHA
-          docker push $DOCKERHUB_USERNAME/impression-carte:web
-          docker push $DOCKERHUB_USERNAME/impression-carte:nginx
+#       - name: Push Docker Images
+#         env:
+#           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+#         run: |
+#           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-8)
+#           docker push $DOCKERHUB_USERNAME/impression-carte:$SHORT_SHA
+#           docker push $DOCKERHUB_USERNAME/impression-carte:web
+#           docker push $DOCKERHUB_USERNAME/impression-carte:nginx
