@@ -46,3 +46,5 @@ apps/static/assets/.temp
 local_settings.py
 node_modules
 node_modules
+
+.github/workflows/actions.yml
