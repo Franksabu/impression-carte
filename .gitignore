@@ -44,8 +44,8 @@ apps/static/assets/.temp
 
 # settings
 local_settings.py
-node_modules
+node_modules 
 node_modules
 
 # .github
-.github/workflows/actions.yml
+.github/workflows/actions.yml 
