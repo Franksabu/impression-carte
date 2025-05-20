@@ -1,37 +1,38 @@
-FROM python:3.12-alpine
+FROM python:3.11.9-alpine3.19
 
-# Désactiver la mise en mémoire tampon pour une sortie immédiate
+# 1. Empêche la mise en mémoire tampon pour une sortie immédiate
 ENV PYTHONUNBUFFERED=1
 
-# Créer un répertoire de travail
-WORKDIR /impression-carte-master
+# 2. Répertoire de travail
+WORKDIR /impression-carte
 
-# Installer les dépendances système nécessaires
+# 3. Installer les dépendances système nécessaires
 RUN apk add --no-cache \
-    gcc \
-    musl-dev \
-    libffi-dev \
-    postgresql-dev \
-    python3-dev \
-    build-base \
-    py3-setuptools \
-    py3-wheel \
-    py3-pip
+      gcc \
+      musl-dev \
+      libffi-dev \
+      postgresql-dev \
+      python3-dev \
+      build-base \
+      libpq \
+      bash \
+      curl
 
-# Assure-toi que pip, setuptools, et wheel sont bien à jour
+# 4. Installer pip + setuptools à jour
 RUN pip install --upgrade pip setuptools wheel
 
-# Copie des dépendances Python
+# 5. Copier les dépendances Python
 COPY requirements.txt .
 
-# Installation des dépendances Python
+# 6. Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copie de l’application
+# 7. Copier le reste de l'application
 COPY . .
 
-# Ajout d'un script d’entrypoint sécurisé
+# 8. Assurer que le script d'entrypoint est exécutable
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# 9. Lancer le script au démarrage
 ENTRYPOINT ["sh", "/entrypoint.sh"]
