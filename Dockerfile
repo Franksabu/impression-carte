@@ -1,38 +1,47 @@
-FROM python:3.11.9-alpine3.19
+FROM python:3.10-slim
 
-# 1. Empêche la mise en mémoire tampon pour une sortie immédiate
+# 1. Sortie non tamponnée pour les logs
 ENV PYTHONUNBUFFERED=1
 
 # 2. Répertoire de travail
 WORKDIR /impression-carte
 
-# 3. Installer les dépendances système nécessaires
-RUN apk add --no-cache \
-      gcc \
-      musl-dev \
-      libffi-dev \
-      postgresql-dev \
-      python3-dev \
-      build-base \
-      libpq \
-      bash \
-      curl
+# 3. Installer les dépendances système (avec `apt-get` pour Debian-based)
+RUN apt-get update && apt-get install -y \
+    bash \
+    curl \
+    gcc \
+    libffi-dev \
+    postgresql-client \
+    libpq-dev \
+    gfortran \
+    liblapack-dev \
+    libopenblas-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libjpeg62-turbo-dev \    
+    libtiff-dev \           
+    && rm -rf /var/lib/apt/lists/*  # Nettoyage des fichiers temporaires d'apt-get
 
-# 4. Installer pip + setuptools à jour
+# 4. Mise à jour de pip et installation des outils Python
 RUN pip install --upgrade pip setuptools wheel
 
-# 5. Copier les dépendances Python
+# 5. Installer numpy avant pandas (utile pour compatibilité)
+RUN pip install numpy==1.23.5
+RUN pip install pandas==1.4.3
+
+# 6. Copier le fichier requirements.txt
 COPY requirements.txt .
 
-# 6. Installer les dépendances Python
-RUN pip install --no-cache-dir -r requirements.txt
+# 7. Installer les dépendances Python, en forçant reportlab en mode pur Python
+RUN pip install --no-binary=reportlab --no-cache-dir --default-timeout=1000 -r requirements.txt
 
-# 7. Copier le reste de l'application
+# 8. Copier le code source
 COPY . .
 
-# 8. Assurer que le script d'entrypoint est exécutable
+# 9. Rendre le script d’entrée exécutable
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# 9. Lancer le script au démarrage
+# 10. Point d’entrée du conteneur
 ENTRYPOINT ["sh", "/entrypoint.sh"]

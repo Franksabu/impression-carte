@@ -19,6 +19,13 @@ DEBUG = os.getenv("DEBUG")
 
 # ALLOWED_HOSTS = []
 ALLOWED_HOSTS = ["*"]
+# Application definition
+CSRF_TRUSTED_ORIGINS = [
+    "http://frank.com",
+    "http://localhost:8004",
+    "http://127.0.0.1:8004",
+]
+
 
 # Application definition
 
@@ -127,7 +134,7 @@ STATIC_URL = "static/"
 # ]
 
 # STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 
 # Default primary key field type
@@ -147,8 +154,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "your_email@gmail.com"
-EMAIL_HOST_PASSWORD = "your_password"
+EMAIL_HOST_USER = "franksabushimike@gmail.com"
+EMAIL_HOST_PASSWORD = "fsabushimike199"
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 # Add a custom cache configuration
